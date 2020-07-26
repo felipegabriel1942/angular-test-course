@@ -18,6 +18,13 @@ describe('HomeComponent', () => {
   let fixture: ComponentFixture<HomeComponent>;
   let component: HomeComponent;
   let el: DebugElement;
+  let coursesService: any;
+
+  const beginnerCourses = setupCourses()
+      .filter(course => course.category === 'BEGINNER');
+
+  const advancedCourses = setupCourses()
+      .filter(course => course.category === 'ADVANCED');
 
   beforeEach(async(() => {
 
@@ -36,6 +43,7 @@ describe('HomeComponent', () => {
         fixture = TestBed.createComponent(HomeComponent);
         component = fixture.componentInstance;
         el = fixture.debugElement;
+        coursesService = TestBed.inject(CoursesService);
       });
 
   }));
@@ -47,32 +55,89 @@ describe('HomeComponent', () => {
   });
 
 
-  it("should display only beginner courses", () => {
+  it('should display only beginner courses', () => {
 
-    pending();
+    coursesService.findAllCourses.and.returnValue(of(beginnerCourses));
 
-  });
+    fixture.detectChanges();
 
+    const tabs = el.queryAll(By.css('.mat-tab-label'));
 
-  it("should display only advanced courses", () => {
-
-      pending();
-
-  });
-
-
-  it("should display both tabs", () => {
-
-    pending();
+    expect(tabs.length).toBe(1, 'Unexpected number of tabs found');
 
   });
 
 
-  it("should display advanced courses when tab clicked", () => {
+  it('should display only advanced courses', () => {
 
-    pending();
+    coursesService.findAllCourses.and.returnValue(of(advancedCourses));
+
+    fixture.detectChanges();
+
+    const tabs = el.queryAll(By.css('.mat-tab-label'));
+
+    expect(tabs.length).toBe(1, 'Unexpected number of tabs found');
 
   });
+
+
+  it('should display both tabs', () => {
+
+    coursesService.findAllCourses.and.returnValue(of(setupCourses()));
+
+    fixture.detectChanges();
+
+    const tabs = el.queryAll(By.css('.mat-tab-label'));
+
+    expect(tabs.length).toBe(2, 'Expect to find 2 tabs');
+
+  });
+
+
+  it('should display advanced courses when tab clicked - fakeAsync', fakeAsync(() => {
+
+    coursesService.findAllCourses.and.returnValue(of(setupCourses()));
+
+    fixture.detectChanges();
+
+    const tabs = el.queryAll(By.css('.mat-tab-label'));
+
+    click(tabs[1]);
+
+    fixture.detectChanges();
+
+    flush();
+
+    const cardTitles = el.queryAll(By.css('.mat-tab-body-active .mat-card-title'));
+
+    expect(cardTitles.length).toBeGreaterThan(0, 'Could not find card titles');
+
+    expect(cardTitles[0].nativeElement.textContent).toContain('Angular Security Course');
+
+  }));
+
+  it('should display advanced courses when tab clicked - async', async(() => {
+
+    coursesService.findAllCourses.and.returnValue(of(setupCourses()));
+
+    fixture.detectChanges();
+
+    const tabs = el.queryAll(By.css('.mat-tab-label'));
+
+    click(tabs[1]);
+
+    fixture.detectChanges();
+
+    fixture.whenStable().then(() => {
+
+      const cardTitles = el.queryAll(By.css('.mat-tab-body-active .mat-card-title'));
+
+      expect(cardTitles.length).toBeGreaterThan(0, 'Could not find card titles');
+
+      expect(cardTitles[0].nativeElement.textContent).toContain('Angular Security Course');
+
+    });
+  }));
 
 });
 

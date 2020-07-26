@@ -32,10 +32,9 @@ describe('CoursesCardListComponent', () => {
 
       el = fixture.debugElement;
 
-    });
-
-  }));
-
+      });
+    })
+  );
 
   it('should create the component', () => {
 
